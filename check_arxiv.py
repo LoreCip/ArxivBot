@@ -7,8 +7,9 @@ from datetime import datetime
 URLS = ["https://arxiv.org/list/astro-ph/new", "https://arxiv.org/list/gr-qc/new"]
 LBLS = ["AstroPH", "GRQC"]
 KEYWORDS = ["Numerical relativity", "Full general relativity", "GRMHD", 
-            "Einstein Toolkit", "Lorene", "Fuka",
+            "Einstein Toolkit", "Lorene", "Fuka", "GRHydro", "Cactus",
             "Binary Neutron Star", "BNS", "BBH", "Binary black holes"]
+KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego"]
 
 OUT_PATH = "/set/a/path"
 
@@ -24,9 +25,9 @@ def extract_title(text):
 
 def extract_authors(text):
     pattern = r'<a href="https://arxiv.org/search/[^"]*\?searchtype=author&amp;query=[^"]+">([^<]+)</a>'
-    match = re.search(pattern, text)
-    if match:
-        return match.group(1)
+    match = re.findall(pattern, text)
+    if len(match) > 0:
+        return match
     return None
 
 def extract_subjects(text):
@@ -71,7 +72,7 @@ def pageParser(page):
 
         checkTitle = [kw.casefold() in title.casefold() for kw in KEYWORDS] 
         checkAbstr = [kw.casefold() in abstract.casefold() for kw in KEYWORDS] 
-        checkAutho = [kw.casefold() in authors.casefold() for kw in KEYWORDS] 
+        checkAutho = [kw.casefold() in author.casefold() for kw in KEYWORDS for author in KEYAUTHORS] 
 
         if any(checkTitle) or any(checkAbstr) or any(checkAutho):
             out[j] = {}
@@ -128,7 +129,7 @@ for lbl in papers.keys():
         fstring += f"{papers[lbl][k]['title'].strip()}\n"
         fstring += f"{papers[lbl][k]['subjects'].strip()}\n\n"
 
-        fstring += f"{papers[lbl][k]['authors'].strip()}\n\n"
+        fstring += ", ".join([author.strip() for author in papers[lbl][k]['authors']]) + "\n\n"
         fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
 
         fstring += f"-" * total_len + "\n\n"

@@ -1,6 +1,6 @@
 # ArxivBot
 
-This Python script downloads from ``arxiv.org/list/<category>/new'' and looks for papers with specific keyword or authors.
+This Python script downloads from ``arxiv.org/list/*****/new'' and looks for papers with specific keyword or authors.
 
 At the end it generates a text file with the filtered papers. Should be used with cron to automate.
 
