@@ -6,7 +6,9 @@ from datetime import datetime
 
 URLS = ["https://arxiv.org/list/astro-ph/new", "https://arxiv.org/list/gr-qc/new"]
 LBLS = ["AstroPH", "GRQC"]
-KEYWORDS = ["Numerical relativity", "GRMHD", "Einstein Toolkit", "Lorene", "Fuka","dsr"]
+KEYWORDS = ["Numerical relativity", "Full general relativity", "GRMHD", 
+            "Einstein Toolkit", "Lorene", "Fuka",
+            "Binary Neutron Star", "BNS", "BBH", "Binary black holes"]
 
 OUT_PATH = "/set/a/path"
 
@@ -50,6 +52,8 @@ def pageParser(page):
             continue
         
         i = i + 9
+        if "Title:" in page[i].decode('utf-8'):
+            i = i + 1
         title = extract_title(page[i].decode('utf-8'))
 
         authors = None
@@ -126,6 +130,8 @@ for lbl in papers.keys():
 
         fstring += f"{papers[lbl][k]['authors'].strip()}\n\n"
         fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
+
+        fstring += f"-" * total_len + "\n\n"
 
     fstring += "\n\n"
 
