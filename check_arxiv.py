@@ -1,3 +1,4 @@
+import os
 import urllib.request
 import re
 from datetime import datetime
@@ -6,6 +7,8 @@ from datetime import datetime
 URLS = ["https://arxiv.org/list/astro-ph/new", "https://arxiv.org/list/gr-qc/new"]
 LBLS = ["AstroPH", "GRQC"]
 KEYWORDS = ["Numerical relativity", "GRMHD", "Einstein Toolkit", "Lorene", "Fuka","dsr"]
+
+OUT_PATH = "/set/a/path"
 
 def extract_arxiv_number(text):
     pattern = r'<a href ="/abs/(\d{4}\.\d{5})" title="Abstract" id="\1">'
@@ -127,6 +130,8 @@ for lbl in papers.keys():
     fstring += "\n\n"
 
 today = datetime.now().strftime("%Y_%m_%d")
-name = f"{today}_Arxiv.txt"
+
+os.makedirs(OUT_PATH, exist_ok=True)
+name = os.path.join(OUT_PATH, f"{today}_Arxiv.txt")
 with open(name, "w") as f:
     f.write(fstring)
