@@ -72,7 +72,7 @@ def pageParser(page):
 
         checkTitle = [kw.casefold() in title.casefold() for kw in KEYWORDS] 
         checkAbstr = [kw.casefold() in abstract.casefold() for kw in KEYWORDS] 
-        checkAutho = [kw.casefold() in author.casefold() for kw in KEYWORDS for author in KEYAUTHORS] 
+        checkAutho = [au.casefold() in ka.casefold() for au in authors for ka in KEYAUTHORS] 
 
         if any(checkTitle) or any(checkAbstr) or any(checkAutho):
             out[j] = {}
