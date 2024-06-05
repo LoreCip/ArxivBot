@@ -127,7 +127,7 @@ for lbl in papers.keys():
     for k in keys:
 
         fstring += f"{papers[lbl][k]['title'].strip()}\n"
-        fstring += ", ".join([author.strip() for author in papers[lbl][k]['subjects']]) + "\n\n"
+        fstring += ", ".join([subj.strip() for subj in papers[lbl][k]['subjects']]) + "\n\n"
 
         fstring += ", ".join([author.strip() for author in papers[lbl][k]['authors']]) + "\n\n"
         fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
