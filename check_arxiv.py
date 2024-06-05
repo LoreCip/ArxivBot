@@ -32,9 +32,9 @@ def extract_authors(text):
 
 def extract_subjects(text):
     pattern = r'([\w\s-]+ \([\w-]+\))'
-    match = re.search(pattern, text)
-    if match:
-        return match.group(1)
+    match = re.findall(pattern, text)
+    if len(match) > 0:
+        return match
     return None
 
 def extract_abstract(text):
@@ -127,7 +127,7 @@ for lbl in papers.keys():
     for k in keys:
 
         fstring += f"{papers[lbl][k]['title'].strip()}\n"
-        fstring += f"{papers[lbl][k]['subjects'].strip()}\n\n"
+        fstring += ", ".join([author.strip() for author in papers[lbl][k]['subjects']]) + "\n\n"
 
         fstring += ", ".join([author.strip() for author in papers[lbl][k]['authors']]) + "\n\n"
         fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
