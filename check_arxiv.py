@@ -14,11 +14,11 @@ KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego
 OUT_PATH = "/set/a/path"
 
 def extract_arxiv_number(text):
-    pattern = r'<a href ="/abs/(\d{4}\.\d{5})" title="Abstract" id="\1">'
+    pattern = r'arXiv:(\d{4}\.\d{5})'
     match = re.search(pattern, text)
     if match:
-        return match.group(1), True
-    return None, False
+        return match.group(1)
+    return None
 
 def extract_title(text):
     return text.strip()
@@ -31,10 +31,12 @@ def extract_authors(text):
     return None
 
 def extract_subjects(text):
-    pattern = r'([\w\s-]+ \([\w-]+\))'
-    match = re.findall(pattern, text)
-    if len(match) > 0:
-        return match
+    pattern = r'<span class="primary-subject">([^<]+)<\/span>(?:; ([^;]+))*'
+    matches = re.findall(pattern, text)
+    if matches:
+        primary_subject = matches[0][0]
+        secondary_subjects = [match.strip() for match in re.findall(r'; ([^;]+)', text)]
+        return [primary_subject, *secondary_subjects]
     return None
 
 def extract_abstract(text):
@@ -46,28 +48,28 @@ def pageParser(page):
     i = 0
     j = 0
     while i < len(page):
-        number, exist = extract_arxiv_number(page[i].decode('utf-8'))
-
-        if not exist:
-            i = i + 1
+        number = extract_arxiv_number(page[i].decode('utf-8'))
+        if number is None:
+            i += 1
             continue
-        
-        i = i + 9
-        if "Title:" in page[i].decode('utf-8'):
-            i = i + 1
+
+        while "Title:" not in page[i].decode('utf-8'):
+            i += 1
+        i += 1
         title = extract_title(page[i].decode('utf-8'))
 
-        authors = None
-        while authors is None:
-            i = i + 1
-            authors = extract_authors(page[i].decode('utf-8'))
+        while "\'list-authors\'" not in page[i].decode('utf-8'):
+            i += 1
+        authors = extract_authors(page[i].decode('utf-8'))
 
-        subjects = None
-        while subjects is None:
-            i = i + 1
-            subjects = extract_subjects(page[i].decode('utf-8'))
+        while "Subjects:" not in page[i].decode('utf-8'):
+            i += 1
+        i += 1
+        subjects = extract_subjects(page[i].decode('utf-8'))
 
-        i = i + 4
+        while "<p class='mathjax'>" not in page[i].decode('utf-8'):
+            i += 1
+        i += 1
         abstract = extract_abstract(page[i].decode('utf-8'))
 
         checkTitle = [kw.casefold() in title.casefold() for kw in KEYWORDS] 
@@ -82,8 +84,8 @@ def pageParser(page):
             out[j]['subjects'] = subjects
             out[j]['abstract'] = abstract
 
-            j = j + 1
-        i = i + 1
+            j += 1
+        i += 1
 
     return out
 
