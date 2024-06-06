@@ -128,6 +128,7 @@ for lbl in papers.keys():
     fstring += "\n\n"
     for k in keys:
 
+        fstring += f"arXiv:{papers[lbl][k]['number']}\n\n"
         fstring += f"{papers[lbl][k]['title'].strip()}\n"
         fstring += ", ".join([subj.strip() for subj in papers[lbl][k]['subjects']]) + "\n\n"
 
