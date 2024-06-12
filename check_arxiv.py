@@ -8,7 +8,8 @@ URLS = ["https://arxiv.org/list/astro-ph/new", "https://arxiv.org/list/gr-qc/new
 LBLS = ["AstroPH", "GRQC"]
 KEYWORDS = ["Numerical relativity", "Full general relativity", "GRMHD", 
             "Einstein Toolkit", "Lorene", "Fuka", "GRHydro", "Cactus",
-            "Binary Neutron Star", "BNS", "BBH", "Binary black holes"]
+            "Binary Neutron Star", "BNS", "BBH", "Binary black holes",
+            "Neutron star merger", "Black hole merger"]
 KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego"]
 
 OUT_PATH = "/set/a/path"
@@ -42,6 +43,11 @@ def extract_subjects(text):
 def extract_abstract(text):
     return text.strip()
 
+def lookfor(text, page, i):
+    while text not in page[i].decode('utf-8'):
+        i += 1
+    return i + 1
+
 def pageParser(page):
     out = {}
 
@@ -52,24 +58,17 @@ def pageParser(page):
         if number is None:
             i += 1
             continue
-
-        while "Title:" not in page[i].decode('utf-8'):
-            i += 1
-        i += 1
+        
+        i = lookfor("Title:", page, i)
         title = extract_title(page[i].decode('utf-8'))
 
-        while "\'list-authors\'" not in page[i].decode('utf-8'):
-            i += 1
+        i = lookfor("\'list-authors\'", page, i) - 1
         authors = extract_authors(page[i].decode('utf-8'))
 
-        while "Subjects:" not in page[i].decode('utf-8'):
-            i += 1
-        i += 1
+        i = lookfor("Subjects:", page, i)
         subjects = extract_subjects(page[i].decode('utf-8'))
 
-        while "<p class='mathjax'>" not in page[i].decode('utf-8'):
-            i += 1
-        i += 1
+        i = lookfor("<p class='mathjax'>", page, i)
         abstract = extract_abstract(page[i].decode('utf-8'))
 
         checkTitle = [kw.casefold() in title.casefold() for kw in KEYWORDS] 
@@ -89,59 +88,60 @@ def pageParser(page):
 
     return out
 
-# Get papers
-papers = {}
-for url, lbl in zip(URLS, LBLS):
-    f = urllib.request.urlopen(url)
-    content = f.read().split(b"\n")
-    papers[lbl] = pageParser(content)
+if __name__ == "__main__":
+    # Get papers
+    papers = {}
+    for url, lbl in zip(URLS, LBLS):
+        f = urllib.request.urlopen(url)
+        content = f.read().split(b"\n")
+        papers[lbl] = pageParser(content)
 
-# Remove duplicates
-already_in = set()
-to_remove = set()
-for lbl in papers.keys():
-    keys = papers[lbl].keys()
-    for k in keys:
-        if papers[lbl][k]['number'] not in already_in:
-            already_in.add(papers[lbl][k]['number'])
-        else:
-            to_remove.add((lbl, k))
+    # Remove duplicates
+    already_in = set()
+    to_remove = set()
+    for lbl in papers.keys():
+        keys = papers[lbl].keys()
+        for k in keys:
+            if papers[lbl][k]['number'] not in already_in:
+                already_in.add(papers[lbl][k]['number'])
+            else:
+                to_remove.add((lbl, k))
 
-for lbl, k in to_remove:
-    del papers[lbl][k]
+    for lbl, k in to_remove:
+        del papers[lbl][k]
 
-# Print output to file
-total_len = 64
-fstring = ""
-for lbl in papers.keys():
-    keys = papers[lbl].keys()
-    
-    if len(keys) == 0:
-        continue
+    # Print output to file
+    total_len = 64
+    fstring = ""
+    for lbl in papers.keys():
+        keys = papers[lbl].keys()
+        
+        if len(keys) == 0:
+            continue
 
-    lbl_len = len(lbl)
-    ws = (total_len-lbl_len) // 2
+        lbl_len = len(lbl)
+        ws = (total_len-lbl_len) // 2
 
-    fstring +=  f"#" * total_len + "\n"
-    fstring += f"{lbl:^64}\n"
-    fstring += f"#" * total_len + "\n"
-    fstring += "\n\n"
-    for k in keys:
+        fstring +=  f"#" * total_len + "\n"
+        fstring += f"{lbl:^64}\n"
+        fstring += f"#" * total_len + "\n"
+        fstring += "\n\n"
+        for k in keys:
 
-        fstring += f"arXiv:{papers[lbl][k]['number']}\n\n"
-        fstring += f"{papers[lbl][k]['title'].strip()}\n"
-        fstring += ", ".join([subj.strip() for subj in papers[lbl][k]['subjects']]) + "\n\n"
+            fstring += f"arXiv:{papers[lbl][k]['number']}\n\n"
+            fstring += f"{papers[lbl][k]['title'].strip()}\n"
+            fstring += ", ".join([subj.strip() for subj in papers[lbl][k]['subjects']]) + "\n\n"
 
-        fstring += ", ".join([author.strip() for author in papers[lbl][k]['authors']]) + "\n\n"
-        fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
+            fstring += ", ".join([author.strip() for author in papers[lbl][k]['authors']]) + "\n\n"
+            fstring += f"{papers[lbl][k]['abstract'].strip()}\n\n\n"
 
-        fstring += f"-" * total_len + "\n\n"
+            fstring += f"-" * total_len + "\n\n"
 
-    fstring += "\n\n"
+        fstring += "\n\n"
 
-today = datetime.now().strftime("%Y_%m_%d")
+    today = datetime.now().strftime("%Y_%m_%d")
 
-os.makedirs(OUT_PATH, exist_ok=True)
-name = os.path.join(OUT_PATH, f"{today}_Arxiv.txt")
-with open(name, "w") as f:
-    f.write(fstring)
+    os.makedirs(OUT_PATH, exist_ok=True)
+    name = os.path.join(OUT_PATH, f"{today}_Arxiv.txt")
+    with open(name, "w") as f:
+        f.write(fstring)
