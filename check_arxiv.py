@@ -10,9 +10,10 @@ KEYWORDS = ["Numerical relativity", "Full general relativity", "GRMHD",
             "Einstein Toolkit", "Lorene", "Fuka", "GRHydro", "Cactus",
             "Binary Neutron Star", "BNS", "BBH", "Binary black holes",
             "Neutron star merger", "Black hole merger"]
-KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego"]
+KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego",
+              "Taniguchi", "Shibata", "Sagun"]
 
-OUT_PATH = "/set/a/path"
+OUT_PATH = "/path/ArXiv_Daily"
 
 def extract_arxiv_number(text):
     pattern = r'arXiv:(\d{4}\.\d{5})'
