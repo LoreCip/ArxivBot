@@ -130,6 +130,7 @@ if __name__ == "__main__":
         for k in keys:
 
             fstring += f"arXiv:{papers[lbl][k]['number']}\n\n"
+            fstring += f"https://arxiv.org/abs/{papers[lbl][k]['number']}"
             fstring += f"{papers[lbl][k]['title'].strip()}\n"
             fstring += ", ".join([subj.strip() for subj in papers[lbl][k]['subjects']]) + "\n\n"
 

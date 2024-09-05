@@ -7,7 +7,7 @@ FILENAME="${RESULT_DIR}/${TODAY}_Arxiv.txt"
 # Check if today is Saturday (6) or Sunday (7)
 DAY_OF_WEEK=$(date +%u)
 
-if [ "$DAY_OF_WEEK" -ge 6 ]; then
+if [ "$DAY_OF_WEEK" -ge 6 ]; then\
   exit 0
 fi
 
@@ -35,4 +35,4 @@ if { [ "$DAY_OF_MONTH" -eq 1 ] && [ "$DAY_OF_WEEK" -lt 6 ]; } || \
   find "$RESULT_DIR" -maxdepth 1 -type f -name "${PREVIOUS_MONTH}_*_Arxiv.txt" -exec mv {} "$PREVIOUS_MONTH_DIR" \;
 fi
 
-python /path/to/check_arxiv.py
+python ./check_arxiv.py
