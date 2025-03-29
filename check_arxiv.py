@@ -9,11 +9,12 @@ LBLS = ["AstroPH", "GRQC"]
 KEYWORDS = ["Numerical relativity", "Full general relativity", "GRMHD", 
             "Einstein Toolkit", "Lorene", "Fuka", "GRHydro", "Cactus",
             "Binary Neutron Star", "BNS", "BBH", "Binary black holes",
-            "Neutron star merger", "Black hole merger"]
+            "Neutron star merger", "Black hole merger", "Bosonic dark matter", "Dark matter admixed neutron star",
+	    "DMANS", "DM-admixed NS", "DANS", "Boson DM", "bosonic dark matter"]
 KEYAUTHORS = ["Bernuzzi", "De Pietri", "Dietrich", "Tootle", "Rezzolla", "Perego",
               "Taniguchi", "Shibata", "Sagun"]
 
-OUT_PATH = "/path/ArXiv_Daily"
+OUT_PATH = "/home/lorenzo/Desktop/ArXiv_Daily"
 
 def extract_arxiv_number(text):
     pattern = r'arXiv:(\d{4}\.\d{5})'
@@ -74,7 +75,8 @@ def pageParser(page):
 
         checkTitle = [kw.casefold() in title.casefold() for kw in KEYWORDS] 
         checkAbstr = [kw.casefold() in abstract.casefold() for kw in KEYWORDS] 
-        checkAutho = [au.casefold() in ka.casefold() for au in authors for ka in KEYAUTHORS] 
+        # checkAutho = [au.casefold() in ka.casefold() for au in authors for ka in KEYAUTHORS] 
+        checkAutho = [any(ka.casefold() in au.casefold() for ka in KEYAUTHORS) for au in authors]
 
         if any(checkTitle) or any(checkAbstr) or any(checkAutho):
             out[j] = {}
